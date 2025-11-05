@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set working directory
-WORKDIR /app/todo_site
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,13 +14,15 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
 # Copy project files
 COPY . /app/
+
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install -r Django/requirements.txt
+
+# Set working directory to where manage.py lives
+WORKDIR /app/Django/todo_site
 
 # Collect static files (optional if using whitenoise)
 RUN python manage.py collectstatic --noinput
