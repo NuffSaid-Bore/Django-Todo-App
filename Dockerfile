@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
-COPY . /app/
+COPY Django/ /app/
 
 # Install Python dependencies
 RUN pip install --upgrade pip
