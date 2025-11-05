@@ -32,4 +32,4 @@ RUN python manage.py collectstatic --noinput || true
 EXPOSE 8000
 
 # Start the server with Gunicorn
-CMD ["gunicorn", "todo_site.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "todo_site.wsgi:application", "--bind", "0.0.0.0:8000", "--chdir", "/app/todo_site"]
