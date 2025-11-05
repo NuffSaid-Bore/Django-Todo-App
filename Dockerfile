@@ -23,11 +23,16 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Set working directory to where manage.py is
 WORKDIR /app/todo_site
 
+# Add Python path to find Django modules
+ENV PYTHONPATH=/app/todo_site
+
 # Collect static files (ignore errors if whitenoise isn’t configured)
 RUN python manage.py collectstatic --noinput || true
 
 # Expose the port Render will use
 EXPOSE 8000
+
+
 
 # Start the server with Gunicorn
 CMD ["gunicorn", "todo_site.wsgi:application", "--bind", "0.0.0.0:8000"]
