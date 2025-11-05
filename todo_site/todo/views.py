@@ -1,28 +1,30 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
-from .forms import TodoForm
 from .models import Todo
+from django.utils import timezone
 
-def index(request):
 
-    item_list = Todo.objects.order_by("-date")
-    if request.method == "POST":
-        form = TodoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('todo')
-    form = TodoForm()
+def home(request):
+    todos = Todo.objects.all().order_by('-date')
+    return render(request, 'todo/home.html', {'todos': todos, 'now': timezone.now(),})
 
-    page = {
-        "forms": form,
-        "list": item_list,
-        "title": "TODO LIST",
-    }
-    return render(request, 'todo/index.html', page)
 
-def remove(request, item_id):
-    item = Todo.objects.get(id=item_id)
-    item.delete()
-    messages.info(request, "item removed !!!")
-    return redirect('todo')
+def add_todo(request):
+    if request.method == 'POST':
+        try:
+            Todo.objects.create(
+                title=request.POST['title'],
+                details=request.POST['details'],
+            )
+            messages.success(request, "Todo added successfully!")
+        except Exception as e:
+            messages.error(request, "Failed to add todo.")
+    return redirect('home')
+
+def delete_todo(request, todo_id):
+    try:
+        Todo.objects.get(id=todo_id).delete()
+        messages.success(request, "Todo deleted.")
+    except:
+        messages.error(request, "Failed to delete todo.")
+    return redirect('home')
