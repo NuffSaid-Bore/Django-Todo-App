@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!--style-->
+  <style>
+      .add-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      padding: 0;
+    }
+    .carousel-item img {
+      height: 300px;
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .carousel-indicators .active {
+      background-color: #6759e7ff;
+    }
+
+    .list-group-item {
+      margin-bottom: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .scroll-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 5px;
+    padding: 5px;
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
+  }
+  .modal-header {
+    background-color: #bd9ce7ff;
+  }
+  .modal-title {
+    color: #500ad1ff;
+  }
+
+
+
+  </style>
+
+</head>
+
+<body>
+<div class="container mt-4">
+
+  <br>
+  <br>
+
+    <!-- Django Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <br>
+    <div id="carouselExampleDark" class="carousel carousel-dark slide mt-2 mb-5" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
+      </div>
+      <div class="carousel-inner w-100 h-25">
+        <div class="carousel-item active" data-bs-interval="10000">
+          <img src="https://meetanders.com/wp-content/uploads/2022/02/meetanders-featured-image-free-google-doc-templates-768x430.jpg" class="d-block w-100" alt="view todo">
+        </div>
+        <div class="carousel-item" data-bs-interval="2000">
+          <img src="https://clickup.com/blog/wp-content/uploads/2020/01/note-taking.png" class="d-block w-100" alt="aa todo">
+        </div>
+        <div class="carousel-item">
+          <img src="https://images.tenorshare.com/topics/iphone-data/best-way-to-recover-permanently-deleted-notes-iphone.webp?w=666&h=273" class="d-block w-100" alt="delete">
+        </div>
+      </div>
+  </div>
+
+    <!-- Todo List -->
+  <div class="scroll-container">
+    <ul class="list-group">
+      {% for todo in todos %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <h5>{{ todo.title }}</h5>
+            <p>{{ todo.details }}</p>
+            <small>{{ todo.date }}</small>
+          </div>
+          <!-- Delete Button triggers modal -->
+          <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ todo.id }}">
+            Delete
+          </button>
+
+          <!-- Confirmation Modal -->
+          <div class="modal fade" id="confirmDeleteModal{{ todo.id }}" tabindex="-1" aria-labelledby="confirmDeleteLabel{{ todo.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmDeleteLabel{{ todo.id }}">Confirm Deletion</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete <strong>{{ todo.title }}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                  <form method="POST" action="{% url 'delete_todo' todo.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                  </form>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </li>
+      {% empty %}
+        <li class="list-group-item">No todos yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  </div>
+
+  <!-- Add Button -->
+  <button class="btn btn-primary add-btn" data-bs-toggle="modal" data-bs-target="#todoModal">+</button>
+
+  <!-- Modal for Adding Todo -->
+  <div class="modal fade" id="todoModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form method="POST" action="{% url 'add_todo' %}">
+        {% csrf_token %}
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Todo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+            <textarea name="details" class="form-control mb-2" placeholder="Details" required></textarea>
+            <input type="text" class="form-control" value="{{ now|date:'Y-m-d H:i' }}" readonly>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
